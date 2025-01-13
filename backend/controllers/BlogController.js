@@ -1,29 +1,14 @@
+import Blog from "../models/BlogModel.js";
 import path from "path";
 import fs from "fs";
-import Blog from "../models/BlogModel.js";
 import { promisify } from "util";
 
 const unlinkAsync = promisify(fs.unlink);
 
-// Helper function untuk validasi file
-const handleFileUpload = (file, req) => {
-  const allowedTypes = [".png", ".jpg", ".jpeg"];
-  const fileSize = file.data.length;
-  const ext = path.extname(file.name).toLowerCase();
-
-  if (!allowedTypes.includes(ext)) throw new Error("Invalid image format.");
-  if (fileSize > 5173000) throw new Error("Image size must be less than 5 MB.");
-
-  const fileName = `${file.md5}${ext}`;
-  const url = `${req.protocol}://${req.get("host")}/images/${fileName}`; // Generate URL
-  return { fileName, url };
-};
-
 export const getBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.findAll();
-    if (!blogs.length) return res.status(404).json({ msg: "No blogs found." });
-    res.json(blogs);
+    const response = await Blog.findAll();
+    res.json(response);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ msg: "Failed to retrieve blogs" });
@@ -32,36 +17,45 @@ export const getBlogs = async (req, res) => {
 
 export const getBlogById = async (req, res) => {
   try {
-    const blog = await Blog.findOne({ where: { id: req.params.id } });
-    if (!blog) return res.status(404).json({ msg: "Blog not found" });
-    res.json(blog);
+    const response = await Blog.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+    if (!response) return res.status(404).json({ msg: "Blog not found" });
+    res.json(response);
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ msg: "Failed to retrieve the blog" });
+    res.status(500).json({ msg: "Failed to retrieve blog" });
   }
 };
 
 export const saveBlog = async (req, res) => {
+  if (!req.files || !req.body.title || !req.body.content || !req.body.author)
+    return res.status(400).json({ msg: "Incomplete data" });
+
+  const title = req.body.title;
+  const content = req.body.content;
+  const author = req.body.author;
+  const file = req.files.file;
+  const fileSize = file.data.length;
+  const ext = path.extname(file.name).toLowerCase();
+  const fileName = `${file.md5}${ext}`;
+  const url = `${req.protocol}://${req.get("host")}/images/${fileName}`;
+  const allowedType = [".png", ".jpg", ".jpeg"];
+
+  if (!allowedType.includes(ext))
+    return res.status(422).json({ msg: "Invalid image format" });
+  if (fileSize > 5000000)
+    return res.status(422).json({ msg: "Image must be less than 5 MB" });
+
   try {
-    if (!req.files || !req.body.title || !req.body.description) {
-      return res.status(400).json({ msg: "Incomplete data." });
-    }
-
-    const { title, description } = req.body;
-    const file = req.files.file;
-
-    const { fileName, url } = handleFileUpload(file, req);
-
-    // Pindahkan file ke folder public/images
     await file.mv(`./public/images/${fileName}`);
-
-    // Simpan data blog ke database
-    await Blog.create({ name: title, description, image: fileName, url });
-
-    res.status(201).json({ msg: "Blog created successfully." });
+    await Blog.create({ title, content, author, image: fileName, url });
+    res.status(201).json({ msg: "Blog created successfully" });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ msg: error.message || "Failed to save blog." });
+    res.status(500).json({ msg: "Failed to save blog" });
   }
 };
 
@@ -70,35 +64,39 @@ export const updateBlog = async (req, res) => {
     const blog = await Blog.findOne({ where: { id: req.params.id } });
     if (!blog) return res.status(404).json({ msg: "Blog not found" });
 
-    const { title, description } = req.body;
     let fileName = blog.image;
+    let content = req.body.content || blog.content;
+    let author = req.body.author || blog.author;
 
     if (req.files) {
       const file = req.files.file;
-      const { fileName: newFileName, url } = handleFileUpload(file);
+      const fileSize = file.data.length;
+      const ext = path.extname(file.name).toLowerCase();
+      fileName = `${file.md5}${ext}`;
+      const allowedType = [".png", ".jpg", ".jpeg"];
 
-      // Delete old file
+      if (!allowedType.includes(ext))
+        return res.status(422).json({ msg: "Invalid image format" });
+      if (fileSize > 5000000)
+        return res.status(422).json({ msg: "Image must be less than 5 MB" });
+
       const oldFilePath = `./public/images/${blog.image}`;
       if (fs.existsSync(oldFilePath)) await unlinkAsync(oldFilePath);
 
-      // Move new file
-      await file.mv(`./public/images/${newFileName}`);
-      fileName = newFileName;
+      await file.mv(`./public/images/${fileName}`);
     }
 
+    const title = req.body.title || blog.title;
+    const url = `${req.protocol}://${req.get("host")}/images/${fileName}`;
+
     await Blog.update(
-      {
-        name: title || blog.name,
-        description: description || blog.description,
-        image: fileName,
-        url,
-      },
+      { title, content, author, image: fileName, url },
       { where: { id: req.params.id } }
     );
-    res.status(200).json({ msg: "Blog updated successfully." });
+    res.status(200).json({ msg: "Blog updated successfully" });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ msg: error.message || "Failed to update blog." });
+    res.status(500).json({ msg: "Failed to update blog" });
   }
 };
 
@@ -111,9 +109,9 @@ export const deleteBlog = async (req, res) => {
     if (fs.existsSync(filePath)) await unlinkAsync(filePath);
 
     await Blog.destroy({ where: { id: req.params.id } });
-    res.status(200).json({ msg: "Blog deleted successfully." });
+    res.status(200).json({ msg: "Blog deleted successfully" });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ msg: "Failed to delete blog." });
+    res.status(500).json({ msg: "Failed to delete blog" });
   }
 };

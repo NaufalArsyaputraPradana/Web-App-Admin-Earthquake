@@ -8,13 +8,12 @@ import { login } from "../Redux/AuthSlice";
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Toggle password visibility
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prevForm) => ({ ...prevForm, [name]: value }));
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -51,7 +50,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://demo-api.syaifur.io/api/login", // Ganti dengan URL API konfigurasi
+        "http://demo-api.syaifur.io/api/login",
         form,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -59,11 +58,11 @@ const Login = () => {
       if (response.data.code === 200) {
         const { user, token } = response.data.data;
 
-        // Simpan token dan update state Redux
+        // Menyimpan token di localStorage
         localStorage.setItem("auth_token", token);
         dispatch(login({ user, token }));
 
-        // Set header otorisasi secara global
+        // Set Authorization header global
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         Swal.fire({
@@ -71,7 +70,6 @@ const Login = () => {
           title: "Login Berhasil",
           text: response.data.message,
         });
-
         setForm({ email: "", password: "" });
         navigate("/admin");
       } else {
@@ -103,47 +101,28 @@ const Login = () => {
         onSubmit={handleSubmit}
       >
         <div className="mb-6">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Email
           </label>
           <input
-            id="email"
             type="email"
             name="email"
             value={form.email}
             onChange={handleChange}
             className="mt-1 block w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring focus:ring-blue-500 transition duration-200"
-            aria-label="Masukkan email"
           />
         </div>
         <div className="mb-6">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Password
           </label>
-          <div className="relative">
-            <input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring focus:ring-blue-500 transition duration-200"
-              aria-label="Masukkan password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-            >
-              {showPassword ? "Sembunyikan" : "Tampilkan"}
-            </button>
-          </div>
+          <input
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring focus:ring-blue-500 transition duration-200"
+          />
         </div>
         <button
           type="submit"

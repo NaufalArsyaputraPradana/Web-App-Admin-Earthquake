@@ -22,8 +22,7 @@ const AdminLayout = () => {
       cancelButtonText: "Batal",
     }).then((result) => {
       if (result.isConfirmed) {
-        localStorage.removeItem("auth_token"); // Hapus token
-        dispatch(logout()); // Update state Redux
+        dispatch(logout());
         Swal.fire("Logout Berhasil", "Anda telah keluar.", "success").then(
           () => {
             navigate("/"); // Redirect ke halaman login
@@ -38,6 +37,7 @@ const AdminLayout = () => {
     const token = localStorage.getItem("auth_token");
 
     if (!token) {
+      // Token tidak ditemukan atau kadaluarsa
       Swal.fire({
         icon: "warning",
         title: "Session Expired",
@@ -49,38 +49,88 @@ const AdminLayout = () => {
     }
   }, [navigate]);
 
-  // Menu Sidebar
-  const menuItems = [
-    { to: "/admin", label: "Dashboard" },
-    { to: "/admin/earthquake", label: "Gempa Terbaru" },
-    { to: "/admin/latestearthquake", label: "Gempa Terkini" },
-    { to: "/admin/feltearthquake", label: "Gempa Dirasakan" },
-    { to: "/add", label: "Buat Blog" },
-    { to: "/blogs", label: "List Blog" },
-  ];
-
   return (
     <div className="flex flex-row min-h-screen">
       {/* Sidebar */}
       <aside className="w-64 bg-indigo-900 text-white">
         <div className="p-4">
-          <h1 className="text-2xl font-bold">Website Data Gempa Bumi</h1>
+          <h1 className="text-2xl font-bold mb-5">Aplikasi Awas Gempa Bumi!</h1>
+          <hr />
           <nav className="mt-6">
             <ul>
-              {menuItems.map((item, index) => (
-                <li key={index} className="hover:bg-indigo-800 mt-2 rounded-md">
-                  <NavLink
-                    to={item.to}
-                    className={({ isActive }) =>
-                      isActive
-                        ? "block p-2 bg-indigo-700 rounded-md"
-                        : "block p-2"
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                </li>
-              ))}
+              <li className="hover:bg-indigo-800 mt-2 rounded-md">
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "block p-2 bg-indigo-700 rounded-md"
+                      : "block p-2"
+                  }
+                >
+                  Dashboard
+                </NavLink>
+              </li>
+              <li className="hover:bg-indigo-800 mt-2 rounded-md">
+                <NavLink
+                  to="/admin/latestearthquake"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "block p-2 bg-indigo-700 rounded-md"
+                      : "block p-2"
+                  }
+                >
+                  Gempa Bumi Terbaru
+                </NavLink>
+              </li>
+              <li className="hover:bg-indigo-800 mt-2 rounded-md">
+                <NavLink
+                  to="/admin/earthquake"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "block p-2 bg-indigo-700 rounded-md"
+                      : "block p-2"
+                  }
+                >
+                  Gempa Bumi Terkini
+                </NavLink>
+              </li>
+              <li className="hover:bg-indigo-800 mt-2 rounded-md">
+                <NavLink
+                  to="/admin/feltearthquake"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "block p-2 bg-indigo-700 rounded-md"
+                      : "block p-2"
+                  }
+                >
+                  Daftar Gempa Bumi
+                </NavLink>
+              </li>
+              
+              <li className="hover:bg-indigo-800 mt-2 rounded-md">
+                <NavLink
+                  to="/admin/blogs"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "block p-2 bg-indigo-700 rounded-md"
+                      : "block p-2"
+                  }
+                >
+                  List Berita
+                </NavLink>
+              </li>
+              <li className="hover:bg-indigo-800 mt-2 rounded-md">
+                <NavLink
+                  to="/admin/add"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "block p-2 bg-indigo-700 rounded-md"
+                      : "block p-2"
+                  }
+                >
+                  Buat Berita
+                </NavLink>
+              </li>
             </ul>
           </nav>
         </div>
@@ -91,7 +141,7 @@ const AdminLayout = () => {
         <header className="bg-white shadow p-4">
           <div className="flex justify-between items-center">
             <p>
-              Welcome, <strong>{user?.name}</strong>
+              Welcome, <strong>{user?.name}</strong> ({user?.email})
             </p>
             <button
               onClick={handleLogout}
@@ -104,6 +154,10 @@ const AdminLayout = () => {
         <main className="flex-1 p-6">
           <Outlet />
         </main>
+        {/* Footer */}
+        <footer className="bg-gray-800 text-white text-center p-4">
+          <p>&copy; 2025 Aplikasi Awas Gempa! All rights reserved.</p>
+        </footer>
       </div>
     </div>
   );

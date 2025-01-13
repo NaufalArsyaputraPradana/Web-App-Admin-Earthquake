@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+// Komponen untuk menampilkan data gempa dirasakan
 const FeltEarthquakes = () => {
+  // State untuk menyimpan data gempa
   const [earthquakes, setEarthquakes] = useState([]);
+  // State untuk menyimpan status loading
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fungsi untuk mengambil data gempa dirasakan
   const fetchFeltEarthquakes = async () => {
     setIsLoading(true);
     try {
@@ -32,6 +36,11 @@ const FeltEarthquakes = () => {
         })
       );
 
+      // Validasi data gempa
+      if (!gempaList.length) {
+        throw new Error("Tidak ada data gempa dirasakan.");
+      }
+
       setEarthquakes(gempaList);
     } catch (error) {
       console.error("Gagal mengambil data gempa yang dirasakan:", error);
@@ -45,19 +54,19 @@ const FeltEarthquakes = () => {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800 text-center">
-        Daftar 15 Gempabumi Dirasakan
+    <div className="max-w-6xl mx-auto p-8 bg-white rounded-2xl shadow-2xl">
+      <h1 className="text-4xl font-bold mb-8 text-center text-blue-800">
+        Daftar 15 Gempa Bumi Dirasakan
       </h1>
 
       {isLoading ? (
         <p className="text-center text-gray-600">Memuat data...</p>
       ) : earthquakes.length > 0 ? (
-        <ul className="space-y-4">
+        <ul className="space-y-8">
           {earthquakes.map((gempa, index) => (
             <li
               key={index}
-              className="p-4 bg-gray-100 rounded-md shadow-md border-l-4 border-blue-500"
+              className="p-6 bg-gray-100 rounded-2xl shadow-md border-l-4 border-blue-500"
             >
               <p>
                 <strong>No:</strong> {index + 1}

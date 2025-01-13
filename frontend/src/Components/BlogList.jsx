@@ -12,37 +12,30 @@ const BlogList = () => {
 
   const getBlogs = async () => {
     try {
-      const response = await axios.get("http://localhost:5173/blogs");
-      // Ensure that the response data is an array before setting state
-      if (Array.isArray(response.data)) {
-        setBlogs(response.data);
-      } else {
-        console.error("Response data is not an array", response.data);
-        setBlogs([]); // Set to empty array in case of an invalid response
-      }
+      const response = await axios.get("http://localhost:5000/admin/blogs");
+      setBlogs(response.data);
     } catch (error) {
       console.error("Error fetching blogs:", error);
-      setBlogs([]); // Fallback to empty array in case of an error
     }
   };
 
   const deleteBlog = async (blogId) => {
     try {
       const result = await Swal.fire({
-        title: "Are you sure?",
-        text: "This will be permanently deleted!",
+        title: "Apakah Anda yakin?",
+        text: "Data ini akan dihapus dan tidak bisa dikembalikan!",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",
         cancelButtonColor: "#3085d6",
-        confirmButtonText: "Delete",
-        cancelButtonText: "Cancel",
+        confirmButtonText: "Hapus",
+        cancelButtonText: "Batal",
       });
 
       if (result.isConfirmed) {
-        await axios.delete(`http://localhost:5173/blogs/${blogId}`);
-        Swal.fire("Deleted!", "Blog has been deleted.", "success");
-        getBlogs(); // Refresh the list after deletion
+        await axios.delete(`http://localhost:5000/admin/blogs/${blogId}`);
+        Swal.fire("Dihapus!", "Blog telah dihapus.", "success");
+        getBlogs();
       }
     } catch (error) {
       console.error("Error deleting blog:", error);
@@ -50,65 +43,79 @@ const BlogList = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg mt-16">
-      <h2 className="text-2xl font-semibold text-gray-700 mb-4">Blog List</h2>
+    <div className="p-8 max-w-6xl mx-auto bg-gradient-to-r from-blue-50 to-purple-50 shadow-2xl rounded-2xl mt-20">
+      <h2 className="text-4xl font-bold text-blue-800 mb-8 text-center">
+        List Berita
+      </h2>
       <Link
-        to="/add"
-        className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-700 mb-4 inline-block"
+        to="/admin/add"
+        className="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl font-semibold text-lg hover:from-green-600 hover:to-teal-600 transition duration-300 transform hover:scale-105 inline-block mb-8"
       >
-        Add Blog
+        Buat Berita
       </Link>
-      <table className="w-full bg-white rounded-lg overflow-hidden shadow-md border border-gray-300">
-        <thead className="bg-gray-100">
-          <tr className="bg-blue-200">
-            <th className="py-2 px-4">ID</th>
-            <th className="py-2 px-4">Name</th>
-            <th className="py-2 px-4">Description</th>
-            <th className="py-2 px-4">Image</th>
-            <th className="py-2 px-4">Actions</th>
+      <table className="w-full bg-white rounded-xl overflow-hidden shadow-lg">
+        <thead className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <tr>
+            <th className="py-4 px-6 text-left">ID</th>
+            <th className="py-4 px-6 text-left">Judul</th>
+            <th className="py-4 px-6 text-left">Content</th>
+            <th className="py-4 px-6 text-left">Author</th>
+            <th className="py-4 px-6 text-left">Image</th>
+            <th className="py-4 px-6 text-left">Aksi</th>
           </tr>
         </thead>
         <tbody>
-          {blogs.length > 0 ? (
+          {Array.isArray(blogs) && blogs.length > 0 ? (
             blogs.map((blog) => (
-              <tr key={blog.id} className="hover:bg-gray-50 transition-colors">
-                <td className="py-2 px-4">{blog.id}</td>
-                <td className="py-2 px-4">{blog.name}</td>
-                <td className="py-2 px-4">{blog.description}</td>
-                <td className="py-2 px-4">
-                  {/* Fallback for missing image */}
+              <tr
+                key={blog.id}
+                className="hover:bg-gray-50 transition-colors border-b border-gray-200"
+              >
+                <td className="py-4 px-6">{blog.id}</td>
+                <td className="py-4 px-6">{blog.title}</td>
+                <td className="py-4 px-6">{blog.content}</td>
+                <td className="py-4 px-6">{blog.author}</td>
+                <td className="py-4 px-6">
                   <img
-                    src={blog.url || "default-image-url.jpg"}
+                    src={blog.url}
                     alt="Blog"
-                    className="w-20 h-20"
+                    className="w-20 h-20 rounded-lg object-cover"
                   />
                 </td>
-                <td className="p-3 space-x-2">
-                  <Link
-                    to={`/blogs/${blog.id}`}
-                    className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    View
-                  </Link>
-                  <Link
-                    to={`/edit/${blog.id}`}
-                    className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => deleteBlog(blog.id)}
-                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
+                <td className="py-4 px-6 space-x-3">
+                  <tr>
+                    <td>
+                      <Link
+                        to={`/admin/blogs/${blog.id}`}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition duration-300"
+                      >
+                        Lihat
+                      </Link>
+                    </td>
+                    <td>
+                      <Link
+                        to={`/admin/edit/${blog.id}`}
+                        className="px-4 py-2 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition duration-300"
+                      >
+                        Edit
+                      </Link>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => deleteBlog(blog.id)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition duration-300"
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="5" className="py-4 text-center">
-                No blogs found.
+              <td colSpan="6" className="py-4 text-center text-gray-500">
+                No Blog Found.
               </td>
             </tr>
           )}

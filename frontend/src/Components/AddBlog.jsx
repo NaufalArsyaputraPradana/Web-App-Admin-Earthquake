@@ -1,100 +1,125 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const AddBlog = () => {
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [file, setFile] = useState(null); // Inisialisasi sebagai null
+  const [content, setContent] = useState("");
+  const [author, setAuthor] = useState("");
+  const [file, setFile] = useState("");
   const [preview, setPreview] = useState("");
   const navigate = useNavigate();
 
   const loadImage = (e) => {
     const image = e.target.files[0];
     setFile(image);
-    setPreview(URL.createObjectURL(image)); // Menampilkan preview gambar
+    setPreview(URL.createObjectURL(image));
   };
 
   const saveBlog = async (e) => {
     e.preventDefault();
-    if (!title || !description || !file) {
-      alert("Please fill in all fields, including image.");
-      return;
-    }
-
     const formData = new FormData();
-    formData.append("file", file); // Pastikan file dikirim
+    formData.append("file", file);
     formData.append("title", title);
-    formData.append("description", description);
-
+    formData.append("content", content);
+    formData.append("author", author);
     try {
-      await axios.post("http://localhost:5173/blogs", formData, {
+      await axios.post("http://localhost:5000/admin/blogs", formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-type": "multipart/form-data",
         },
       });
-      navigate("/blogs");
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Blog berhasil ditambahkan.",
+      });
+      navigate("/admin/blogs");
     } catch (error) {
-      console.error("Error adding blog:", error);
-      alert("Error adding blog: " + error.message);
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: "Terjadi kesalahan saat menambahkan blog.",
+      });
     }
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-      <h2 className="text-3xl font-semibold mb-6 text-center">Add Blog</h2>
-      <form onSubmit={saveBlog} className="space-y-6">
+    <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-xl shadow-2xl max-w-2xl mx-auto">
+      <h2 className="text-4xl font-bold mb-8 text-center text-blue-800">
+        Add Berita
+      </h2>
+      <form onSubmit={saveBlog} className="space-y-8">
         <div>
-          <label className="block text-gray-700 mb-2 font-medium">
-            Blog Name
+          <label className="block text-gray-700 mb-3 font-semibold text-lg">
+            Judul Berita
           </label>
           <input
             type="text"
-            className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border-2 border-gray-200 p-4 w-full rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Blog Name"
+            placeholder="Blog Title"
           />
         </div>
 
         <div>
-          <label className="block text-gray-700 mb-2 font-medium">
-            Description
+          <label className="block text-gray-700 mb-3 font-semibold text-lg">
+            Content
+          </label>
+          <textarea
+            className="border-2 border-gray-200 p-4 w-full rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Blog Content"
+            rows="6"
+          />
+        </div>
+
+        <div>
+          <label className="block text-gray-700 mb-3 font-semibold text-lg">
+            Author
           </label>
           <input
             type="text"
-            className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Blog Description"
+            className="border-2 border-gray-200 p-4 w-full rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            placeholder="Author Name"
           />
         </div>
 
         <div>
-          <label className="block text-gray-700 mb-2 font-medium">Image</label>
+          <label className="block text-gray-700 mb-3 font-semibold text-lg">
+            Image
+          </label>
           <input
             type="file"
-            className="file-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="file-input w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300"
             onChange={loadImage}
           />
         </div>
 
         {preview && (
-          <div className="mt-4">
-            <h3 className="text-gray-600 mb-2">Image Preview:</h3>
+          <div className="mt-6">
+            <h3 className="text-gray-600 mb-3 font-semibold text-lg">
+              Image Preview:
+            </h3>
             <img
               src={preview}
               alt="Preview Image"
-              className="max-w-[200px] rounded-lg"
+              className="max-w-[250px] rounded-xl shadow-md"
             />
           </div>
         )}
 
         <button
           type="submit"
-          className="bg-blue-500 text-white px-6 py-3 rounded-lg w-full hover:bg-blue-600 transition duration-300"
+          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl w-full font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105"
         >
-          Add Blog
+          Buat Berita
         </button>
       </form>
     </div>

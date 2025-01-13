@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+// Komponen untuk menampilkan data gempa terkini
 const Earthquake = () => {
+  // State untuk menyimpan data gempa
   const [earthquakes, setEarthquakes] = useState([]);
+  // State untuk menyimpan status loading
   const [isLoading, setIsLoading] = useState(false);
+  // State untuk menyimpan error
   const [error, setError] = useState(null);
 
+  // Fungsi untuk mengambil data gempa
   const fetchEarthquakeData = async () => {
     setIsLoading(true);
     setError(null); // Reset error state
@@ -34,6 +39,11 @@ const Earthquake = () => {
         potensi: item.getElementsByTagName("Potensi")[0]?.textContent || "-",
       }));
 
+      // Validasi data gempa
+      if (!earthquakeData.length) {
+        throw new Error("Tidak ada data gempa terkini.");
+      }
+
       setEarthquakes(earthquakeData);
     } catch (error) {
       console.error("Gagal mengambil data gempa:", error);
@@ -48,8 +58,8 @@ const Earthquake = () => {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+    <div className="max-w-6xl mx-auto p-8 bg-white rounded-2xl shadow-2xl">
+      <h1 className="text-4xl font-bold mb-8 text-center text-blue-800">
         Data Gempa Bumi Terkini
       </h1>
 

@@ -5,84 +5,68 @@ import axios from "axios";
 const Dashboard = () => {
   const [totalBlogs, setTotalBlogs] = useState(0);
   const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   const navigate = useNavigate();
 
-  // Cek token dan redirect jika tidak ada
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (!token) {
-      navigate("/"); // Redirect ke halaman login jika tidak ada token
+      navigate("/");
     } else {
-      fetchBlogs();
+      getBlogs();
     }
   }, [navigate]);
 
-  // Fungsi untuk mengambil data blogs
-  const fetchBlogs = async () => {
+  const getBlogs = async () => {
     try {
-      const response = await axios.get("http://localhost:5173/blogs");
-      if (Array.isArray(response.data)) {
-        setBlogs(response.data);
-        setTotalBlogs(response.data.length);
-      } else {
-        throw new Error("Data is not an array");
-      }
-    } catch (err) {
-      console.error("Error fetching blogs:", err);
-      setError("Gagal memuat data blog. Silakan coba lagi nanti.");
-    } finally {
-      setLoading(false);
+      const response = await axios.get("http://localhost:5000/admin/blogs");
+      setBlogs(response.data);
+      setTotalBlogs(response.data.length);
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
     }
   };
 
-  if (loading) {
-    return <p className="text-center mt-16">Memuat data...</p>;
-  }
-
-  if (error) {
-    return <p className="text-center text-red-600 mt-16">{error}</p>;
-  }
-
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-white shadow-lg rounded-lg mt-16">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-6">Dashboard</h2>
-      <p className="text-lg text-gray-600 mb-6">
-        Total Blog:{" "}
+    <div className="p-8 max-w-6xl mx-auto bg-gradient-to-r from-blue-50 to-purple-50 shadow-2xl rounded-2xl mt-20">
+      <h2 className="text-4xl font-bold text-blue-800 mb-8 text-center">
+        Dashboard
+      </h2>
+      <p className="text-xl text-gray-700 mb-6 text-center">
+        Total Berita:{" "}
         <span className="font-bold text-blue-600">{totalBlogs}</span>
       </p>
-      <p className="mb-8 text-gray-500">
-        Selamat datang di Manajemen Produk, silakan kelola data barang di menu
-        samping.
+      <p className="mb-8 text-gray-600 text-center">
+        Selamat Datang di Manajemen Data Gempa Bumi, silahkan kelola data Gempa
+        Bumi di menu samping.
       </p>
-
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {blogs.length > 0 ? (
+      <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {Array.isArray(blogs) && blogs.length > 0 ? (
           blogs.map((blog) => (
             <div
-              className="bg-white border rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              className="bg-white border-2 border-gray-200 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
               key={blog.id}
             >
-              <Link to={`/blogs/${blog.id}`}>
+              <Link to={`/admin/blogs/${blog.id}`}>
                 <div
                   className="h-48 w-full bg-cover bg-center"
                   style={{ backgroundImage: `url(${blog.url})` }}
                 ></div>
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {blog.name}
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                    {blog.title}
                   </h3>
-                  <p className="text-gray-600 mt-2 truncate">
-                    {blog.description}
+                  <p className="text-gray-600 mb-4 line-clamp-3">
+                    {blog.content}
                   </p>
+                  <p className="text-gray-900 font-bold">{blog.author}</p>
                 </div>
               </Link>
             </div>
           ))
         ) : (
-          <p className="text-center col-span-full">No blogs found.</p>
+          <p className="text-center text-gray-500 col-span-full">
+            Tidak ada data blog.
+          </p>
         )}
       </div>
     </div>

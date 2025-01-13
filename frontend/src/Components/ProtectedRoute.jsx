@@ -4,9 +4,7 @@ import { Navigate } from "react-router-dom";
 /**
  * ProtectedRoute Component
  * Melindungi rute yang hanya dapat diakses oleh pengguna yang sudah login.
- *
- * @param {Object} props - Properti komponen.
- * @param {JSX.Element} props.children - Komponen anak yang akan dirender jika autentikasi berhasil.
+ * @param {Object} children - Komponen anak yang akan dirender jika autentikasi berhasil.
  * @returns {JSX.Element}
  */
 const ProtectedRoute = ({ children }) => {

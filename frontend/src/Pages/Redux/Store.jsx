@@ -1,12 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./AuthSlice"; // Import reducer untuk autentikasi
+import authReducer from "./AuthSlice";
 
-// Konfigurasi store Redux Toolkit
-const store = configureStore({
+const Store = configureStore({
   reducer: {
-    auth: authReducer, // Reducer untuk autentikasi
+    auth: authReducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware(), // Middleware default
 });
 
-export default store;
+export default Store;

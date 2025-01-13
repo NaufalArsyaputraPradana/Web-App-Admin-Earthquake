@@ -1,33 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Slice untuk autentikasi pengguna
 const authSlice = createSlice({
-  name: "auth", // Nama slice
+  name: "auth",
   initialState: {
-    user: null, // Data pengguna
-    token: null, // Token autentikasi
+    user: JSON.parse(localStorage.getItem("user")) || null,
+    token: localStorage.getItem("auth_token") || null,
   },
   reducers: {
-    // Action untuk login
     login: (state, action) => {
-      const { user, token } = action.payload;
-
-      // Validasi payload sebelum memperbarui state
-      if (user && token) {
-        state.user = user;
-        state.token = token;
-      } else {
-        console.error("Login action gagal: payload tidak valid.");
-      }
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      // Simpan data user dan token di localStorage
+      localStorage.setItem("user", JSON.stringify(action.payload.user));
+      localStorage.setItem("auth_token", action.payload.token);
     },
-    // Action untuk logout
     logout: (state) => {
       state.user = null;
       state.token = null;
+      // Hapus data user dan token dari localStorage
+      localStorage.removeItem("user");
+      localStorage.removeItem("auth_token");
     },
   },
 });
 
-// Export actions dan reducer
 export const { login, logout } = authSlice.actions;
 export default authSlice.reducer;

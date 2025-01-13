@@ -3,46 +3,24 @@ import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
 import AdminLayout from "./Layouts/AdminLayout";
 import Dashboard from "./Pages/Admin/Dashboard";
-import ProtectedRoute from "./Components/ProtectedRoute";
 import Earthquake from "./Pages/Admin/Earthquake";
-import LatestEarthquake from "./Pages/Admin/LatestEarthquake";
 import FeltEarthquake from "./Pages/Admin/FeltEarthquake";
-import AddBlog from "./Components/AddBlog";
+import LatestEarthquake from "./Pages/Admin/LatestEarthquake";
 import BlogList from "./Components/BlogList";
+import AddBlog from "./Components/AddBlog";
 import EditBlog from "./Components/EditBlog";
 import BlogDetail from "./Components/BlogDetail";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
-// Definisi daftar rute
 const RouteList = createBrowserRouter([
-  // Rute halaman login
   {
     path: "/",
     element: <Login />,
   },
-  // Rute halaman register
   {
     path: "/register",
     element: <Register />,
   },
-  // Rute tambah blog
-  {
-    path: "add",
-    element: <AddBlog />,
-  },
-  {
-    path: "blogs",
-    element: <BlogList />,
-  },
-  {
-    path: "edit/:id",
-    element: <EditBlog />,
-  },
-  {
-    path: "blogs/:id",
-    element: <BlogDetail />,
-  },
-
-  // Rute admin (dengan proteksi)
   {
     path: "/admin",
     element: (
@@ -51,26 +29,37 @@ const RouteList = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      // Rute dashboard utama
       {
-        index: true, // Rute default untuk /admin
+        index: true,
         element: <Dashboard />,
       },
-
-      // Rute informasi gempa
+      {
+        path: "blogs",
+        element: <BlogList />,
+      },
+      {
+        path: "add",
+        element: <AddBlog />,
+      },
+      {
+        path: "edit/:id",
+        element: <EditBlog />,
+      },
+      {
+        path: "blogs/:id",
+        element: <BlogDetail />,
+      },
       {
         path: "earthquake",
         element: <Earthquake />,
       },
-      // Rute gempa terbaru
-      {
-        path: "latestearthquake",
-        element: <LatestEarthquake />,
-      },
-      // Rute gempa dirasakan
       {
         path: "feltearthquake",
         element: <FeltEarthquake />,
+      },
+      {
+        path: "latestearthquake",
+        element: <LatestEarthquake />,
       },
     ],
   },

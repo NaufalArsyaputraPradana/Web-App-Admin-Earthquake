@@ -3,12 +3,17 @@ import db from "../config/Database.js";
 
 const { DataTypes } = Sequelize;
 
-const Blog = db.define(
-  "Blog",
+const Product = db.define(
+  "blog",
   {
-    name: DataTypes.STRING,
-    description: DataTypes.STRING,
+    title: DataTypes.STRING,
+
+    content: DataTypes.STRING,
+
+    author: DataTypes.STRING,
+
     image: DataTypes.STRING,
+
     url: DataTypes.STRING,
   },
   {
@@ -16,13 +21,8 @@ const Blog = db.define(
   }
 );
 
-export default Blog;
+export default Product;
 
 (async () => {
-  try {
-    await db.sync();
-    console.log("Database synchronized successfully.");
-  } catch (error) {
-    console.error("Database synchronization failed:", error.message);
-  }
+  await db.sync();
 })();
